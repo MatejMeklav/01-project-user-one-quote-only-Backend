@@ -1,8 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { User } from './user.entity';
 
-
-
 @Injectable()
 export class UsersService {
   private users: User[] = [
@@ -23,6 +21,6 @@ export class UsersService {
   ];
 
   async findOne(email: string): Promise<User | undefined> {
-    return this.users.find(user => user.email === email);
+    return this.users.find((user) => user.email === email);
   }
 }
