@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
 import { DataSource } from 'typeorm';
+import { Quote } from './quotes/quote.entity';
 import { User } from './users/user.entity';
 
 export const AppDataSource = new DataSource({
@@ -11,7 +12,7 @@ export const AppDataSource = new DataSource({
   database: 'postgres',
   synchronize: true,
   logging: true,
-  entities: [User],
+  entities: [User, Quote],
   subscribers: [],
   migrations: [],
 });
