@@ -3,6 +3,7 @@ import { AppDataSource } from 'src/data-source';
 import { CreateUpdateUserDto } from './dto/create-update-user-dto';
 import { UpdateUserPasswordDto } from './dto/update-user-password-dto';
 import { User } from './user.entity';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UsersService {
@@ -42,18 +43,18 @@ export class UsersService {
 
   async create(createUserDto: CreateUpdateUserDto): Promise<true | false> {
     const userRepository = await AppDataSource.getRepository(User);
+    const salt = await bcrypt.genSalt();
+    const hash = await bcrypt.hash(createUserDto.password, salt);
+
     const data = await userRepository.findOneBy({
       email: createUserDto.email,
-      firstName: createUserDto.firstName,
-      lastName: createUserDto.lastName,
-      password: createUserDto.password,
     });
     if (!data) {
       const user = new User();
       user.email = createUserDto.email;
       user.firstName = createUserDto.firstName;
       user.lastName = createUserDto.lastName;
-      user.password = createUserDto.password;
+      user.password = hash;
       await userRepository.save(user);
       return true;
     }
