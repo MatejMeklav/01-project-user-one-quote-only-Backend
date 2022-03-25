@@ -6,11 +6,13 @@ import {
   OneToOne,
   JoinColumn,
 } from 'typeorm';
-@Entity()
+@Entity({
+  orderBy: { upVote: 'DESC' },
+})
 export class Quote {
   @PrimaryGeneratedColumn('uuid')
   id: string;
-  @Column()
+  @Column({ nullable: true })
   description: string;
   @Column({ nullable: true })
   upVote?: number;

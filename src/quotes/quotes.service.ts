@@ -33,4 +33,26 @@ export class QuotesService {
     await quoteRepository.save(data);
     return data;
   }
+
+  async updateQuoteVotes(option: boolean, user: User) {
+    const data = await this.findQuoteWithUser(user);
+    if (!data) {
+      return { error: 'not found' };
+    }
+    if (option) {
+      data.upVote = data.upVote + 1;
+    } else {
+      data.downVote = data.downVote + 1;
+    }
+    const quoteRepository = await AppDataSource.getRepository(Quote);
+    await quoteRepository.save(data);
+    return data;
+  }
+  async getAllQuotes() {
+    return await AppDataSource.getRepository(Quote).find({
+      relations: {
+        user: true,
+      },
+    });
+  }
 }
