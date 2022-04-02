@@ -53,6 +53,9 @@ export class QuotesService {
       relations: {
         user: true,
       },
+      order: {
+        upVote: 'DESC',
+      },
     });
   }
 }

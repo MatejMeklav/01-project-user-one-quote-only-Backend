@@ -29,6 +29,7 @@ export class AppController {
   @Post('login')
   async login(@Request() req) {
     const token = await Promise.resolve(this.authService.login(req.user));
+    console.log(token + ' token');
     return { key: token };
   }
 
@@ -80,7 +81,7 @@ export class AppController {
       return { UserCreateResponse: 'password fields  must match!' };
     return await this.usersService.update(updateUserPassword, req.user.email);
   }
-  @Get('/list')
+  @Get('list')
   async getQuotesUsers() {
     return await this.quotesService.getAllQuotes();
   }

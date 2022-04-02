@@ -8,12 +8,13 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.use(cookieParser());
   app.useGlobalPipes(new ValidationPipe());
+  app.enableCors();
   AppDataSource.initialize()
     .then(() => {
       console.log('Database connected');
     })
     .catch((error) => console.log(error));
 
-  await app.listen(3000);
+  await app.listen(8000);
 }
 bootstrap();

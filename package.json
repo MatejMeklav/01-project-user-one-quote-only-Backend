@@ -32,6 +32,7 @@
     "class-transformer": "^0.5.1",
     "class-validator": "^0.13.2",
     "cookie-parser": "^1.4.6",
+    "cors": "^2.8.5",
     "fastify-cookie": "^5.6.0",
     "minimist": "^1.2.6",
     "passport": "^0.5.2",
