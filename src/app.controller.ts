@@ -81,8 +81,19 @@ export class AppController {
       return { UserCreateResponse: 'password fields  must match!' };
     return await this.usersService.update(updateUserPassword, req.user.email);
   }
+
   @Get('list')
   async getQuotesUsers() {
     return await this.quotesService.getAllQuotes();
+  }
+
+  @Get('list/random')
+  async getQuoteUserRandom() {
+    return await this.quotesService.getRandomQuote();
+  }
+
+  @Get('list/date')
+  async getQuotesUsersByDate() {
+    return await this.quotesService.getAllQuotesByPublishDate();
   }
 }

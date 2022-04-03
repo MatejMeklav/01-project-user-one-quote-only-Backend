@@ -26,6 +26,7 @@ export class QuotesService {
       quote.user = createUpdateQuoteDto.user;
       quote.downVote = 0;
       quote.upVote = 0;
+      quote.date = new Date();
       await quoteRepository.save(quote);
       return quote;
     }
@@ -56,6 +57,28 @@ export class QuotesService {
       order: {
         upVote: 'DESC',
       },
+    });
+  }
+  async getAllQuotesByPublishDate() {
+    return await AppDataSource.getRepository(Quote).find({
+      relations: {
+        user: true,
+      },
+      order: {
+        date: 'DESC',
+      },
+    });
+  }
+
+  async getRandomQuote() {
+    return await AppDataSource.getRepository(Quote).find({
+      relations: {
+        user: true,
+      },
+      order: {
+        upVote: 'DESC',
+      },
+      take: 1,
     });
   }
 }

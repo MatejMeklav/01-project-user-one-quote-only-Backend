@@ -15,6 +15,8 @@ export class Quote {
   @Column({ nullable: true })
   description: string;
   @Column({ nullable: true })
+  date: Date;
+  @Column({ nullable: true })
   upVote?: number;
   @Column({ nullable: true })
   downVote?: number;
