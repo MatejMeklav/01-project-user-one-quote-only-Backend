@@ -14,7 +14,7 @@ import { AuthService } from './users/auth/auth.service';
 import { JwtAuthGuard } from './users/auth/jwt-auth.guard';
 import { LocalAuthGuard } from './users/auth/local-auth.guard';
 import { CreateUpdateUserDto } from './users/dto/create-update-user-dto';
-import { UpdateUserPasswordDto } from './users/dto/update-user-password-dto';
+import { UpdateUserDto } from './users/dto/update-user-dto';
 import { UsersService } from './users/users.service';
 
 @Controller()
@@ -67,19 +67,16 @@ export class AppController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Put('/me/update-password')
-  async updatePassword(
-    @Request() req,
-    @Body() updateUserPassword: UpdateUserPasswordDto,
-  ) {
+  @Put('/me/update-user')
+  async updatePassword(@Request() req, @Body() updateUser: UpdateUserDto) {
     if (
       (await this.usersService.checkPassword(
-        updateUserPassword.password,
-        updateUserPassword.repeatedPassword,
+        updateUser.password,
+        updateUser.repeatedPassword,
       )) == false
     )
       return { UserCreateResponse: 'password fields  must match!' };
-    return await this.usersService.update(updateUserPassword, req.user.email);
+    return await this.usersService.update(updateUser, req.user.id);
   }
 
   @Get('list')

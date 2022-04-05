@@ -71,6 +71,9 @@ export class QuotesService {
   }
 
   async getRandomQuote() {
+    const value = await AppDataSource.getRepository(Quote).count({});
+    console.log(value + 'dddd');
+    const random = Math.floor(Math.random() * value);
     return await AppDataSource.getRepository(Quote).find({
       relations: {
         user: true,
@@ -78,6 +81,7 @@ export class QuotesService {
       order: {
         upVote: 'DESC',
       },
+      skip: random,
       take: 1,
     });
   }

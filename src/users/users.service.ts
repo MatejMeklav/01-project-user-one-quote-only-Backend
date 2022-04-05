@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { AppDataSource } from 'src/data-source';
 import { CreateUpdateUserDto } from './dto/create-update-user-dto';
-import { UpdateUserPasswordDto } from './dto/update-user-password-dto';
+import { UpdateUserDto } from './dto/update-user-dto';
 import { User } from './user.entity';
 import * as bcrypt from 'bcrypt';
 
@@ -62,17 +62,23 @@ export class UsersService {
   }
 
   async update(
-    updateUserPasswordDto: UpdateUserPasswordDto,
-    email: string,
+    updateUserDto: UpdateUserDto,
+    id: string,
   ): Promise<true | false> {
     const userRepository = await AppDataSource.getRepository(User);
     const data = await userRepository.findOneBy({
-      email: email,
+      id: id,
     });
     if (!data) {
       return false;
     }
-    data.password = updateUserPasswordDto.password;
+
+    const salt = await bcrypt.genSalt();
+    const hash = await bcrypt.hash(updateUserDto.password, salt);
+    data.password = hash;
+    data.email = updateUserDto.email;
+    data.firstName = updateUserDto.firstName;
+    data.lastName = updateUserDto.lastName;
     await userRepository.save(data);
     return true;
   }
