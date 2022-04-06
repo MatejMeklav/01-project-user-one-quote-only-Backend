@@ -10,6 +10,7 @@ export class UsersController {
   ) {}
   @Get('/:id')
   async getUserandQuote(@Param() params) {
+    console.log('dddddddddddddddd');
     const user = await this.usersService.findById(params.id);
     if (!user) {
       return { notFound: 'user not found' };
@@ -17,19 +18,29 @@ export class UsersController {
     const quote = await this.quoteService.findQuoteWithUser(user);
     if (!quote) {
       return {
-        firstName: user.firstName,
-        lastname: user.lastName,
+        id: null,
         description: null,
         upVote: null,
         downVote: null,
+        user: {
+          firstName: user.firstName,
+          lastName: user.lastName,
+          email: user.email,
+          id: user.id,
+        },
       };
     }
     return {
-      firstName: user.firstName,
-      lastname: user.lastName,
+      id: quote.id,
       description: quote.description,
       upVote: quote.upVote,
       downVote: quote.downVote,
+      user: {
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        id: user.id,
+      },
     };
   }
   @UseGuards(JwtAuthGuard)

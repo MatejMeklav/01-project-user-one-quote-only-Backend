@@ -53,7 +53,10 @@ export class AppController {
   @UseGuards(JwtAuthGuard)
   @Get('me')
   async getProfile(@Request() req) {
-    return this.usersService.findById(req.user.id);
+    console.log(req.user.id);
+    const user = await this.usersService.findById(req.user.id);
+    console.log(user.id + 'dddd');
+    return await this.quotesService.findQuoteWithUser(user);
   }
 
   @UseGuards(JwtAuthGuard)

@@ -8,8 +8,9 @@ import { Quote } from './quote.entity';
 export class QuotesService {
   async findQuoteWithUser(user: User): Promise<Quote | undefined> {
     const quoteRepository = await AppDataSource.getRepository(Quote);
-    const data = await quoteRepository.findOneBy({
-      user: user,
+    const data = await quoteRepository.findOne({
+      where: { user: user },
+      relations: { user: true },
     });
 
     return data;
