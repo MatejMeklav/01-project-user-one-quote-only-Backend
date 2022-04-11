@@ -1,4 +1,5 @@
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import { Quote } from 'src/quotes/quote.entity';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToMany } from 'typeorm';
 @Entity()
 export class User {
   @PrimaryGeneratedColumn('uuid')
@@ -11,4 +12,10 @@ export class User {
   lastName: string;
   @Column()
   password: string;
+
+  @ManyToMany(() => Quote, (quote) => quote.usersUpVoted)
+  quotesUpVoted: Quote;
+
+  @ManyToMany(() => Quote, (quote) => quote.usersDownVoted)
+  quotesDownVoted: Quote;
 }

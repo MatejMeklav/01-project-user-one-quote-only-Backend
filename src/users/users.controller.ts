@@ -1,4 +1,11 @@
-import { Controller, Get, Param, Put, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Param,
+  Put,
+  UseGuards,
+  Request,
+} from '@nestjs/common';
 import { QuotesService } from 'src/quotes/quotes.service';
 import { JwtAuthGuard } from './auth/jwt-auth.guard';
 import { UsersService } from './users.service';
@@ -10,7 +17,6 @@ export class UsersController {
   ) {}
   @Get('/:id')
   async getUserandQuote(@Param() params) {
-    console.log('dddddddddddddddd');
     const user = await this.usersService.findById(params.id);
     if (!user) {
       return { notFound: 'user not found' };
@@ -45,14 +51,14 @@ export class UsersController {
   }
   @UseGuards(JwtAuthGuard)
   @Put('/:id/upvote')
-  async upVoteQuote(@Param() params) {
-    const user = await this.usersService.findById(params.id);
-    return await this.quoteService.updateQuoteVotes(true, user);
+  async upVoteQuote(@Request() req, @Param() params) {
+    const user = await this.usersService.findById(req.user.id);
+    return await this.quoteService.quoteVote(true, user, params.id);
   }
   @UseGuards(JwtAuthGuard)
   @Put('/:id/downvote')
-  async downVoteQuote(@Param() params) {
-    const user = await this.usersService.findById(params.id);
-    return await this.quoteService.updateQuoteVotes(false, user);
+  async downVoteQuote(@Request() req, @Param() params) {
+    const user = await this.usersService.findById(req.user.id);
+    return await this.quoteService.quoteVote(false, user, params.id);
   }
 }

@@ -5,6 +5,8 @@ import {
   Column,
   OneToOne,
   JoinColumn,
+  ManyToMany,
+  JoinTable,
 } from 'typeorm';
 @Entity({
   orderBy: { upVote: 'DESC' },
@@ -23,4 +25,16 @@ export class Quote {
   @OneToOne(() => User)
   @JoinColumn()
   user: User;
+
+  @ManyToMany(() => User, (user) => user.quotesUpVoted, {
+    cascade: true,
+  })
+  @JoinTable()
+  usersUpVoted: User[];
+
+  @ManyToMany(() => User, (user) => user.quotesDownVoted, {
+    cascade: true,
+  })
+  @JoinTable()
+  usersDownVoted: User[];
 }

@@ -1,16 +1,28 @@
 import { Injectable } from '@nestjs/common';
-import { AppDataSource } from 'src/data-source';
+import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/users/user.entity';
+import { Repository } from 'typeorm';
 import { CreateUpdateQuoteDto } from './dto/create-update-quote-dto';
 import { Quote } from './quote.entity';
 
 @Injectable()
 export class QuotesService {
+  constructor(
+    @InjectRepository(Quote)
+    private quotesRepository: Repository<Quote>,
+  ) {}
   async findQuoteWithUser(user: User): Promise<Quote | undefined> {
-    const quoteRepository = await AppDataSource.getRepository(Quote);
-    const data = await quoteRepository.findOne({
+    const data = await this.quotesRepository.findOne({
       where: { user: user },
-      relations: { user: true },
+      relations: ['user'],
+    });
+
+    return data;
+  }
+
+  async findQuoteWithId(id: string): Promise<Quote | undefined> {
+    const data = await this.quotesRepository.findOne({
+      where: { id: id },
     });
 
     return data;
@@ -19,7 +31,6 @@ export class QuotesService {
   async createUpdate(
     createUpdateQuoteDto: CreateUpdateQuoteDto,
   ): Promise<Quote | null> {
-    const quoteRepository = await AppDataSource.getRepository(Quote);
     const data = await this.findQuoteWithUser(createUpdateQuoteDto.user);
     if (!data) {
       const quote = new Quote();
@@ -28,43 +39,42 @@ export class QuotesService {
       quote.downVote = 0;
       quote.upVote = 0;
       quote.date = new Date();
-      await quoteRepository.save(quote);
+      await this.quotesRepository.save(quote);
       return quote;
     }
     data.description = createUpdateQuoteDto.description;
-    await quoteRepository.save(data);
+    await this.quotesRepository.save(data);
     return data;
   }
 
-  async updateQuoteVotes(option: boolean, user: User) {
-    const data = await this.findQuoteWithUser(user);
-    if (!data) {
-      return { error: 'not found' };
-    }
-    if (option) {
-      data.upVote = data.upVote + 1;
-    } else {
-      data.downVote = data.downVote + 1;
-    }
-    const quoteRepository = await AppDataSource.getRepository(Quote);
-    await quoteRepository.save(data);
-    return data;
-  }
   async getAllQuotes() {
-    return await AppDataSource.getRepository(Quote).find({
-      relations: {
-        user: true,
-      },
+    return await this.quotesRepository.find({
+      relations: ['user'],
       order: {
         upVote: 'DESC',
       },
     });
   }
+
+  async quoteVote(type: boolean, user: User, quoteId: string) {
+    const quote = await this.findQuoteWithId(quoteId);
+    if (type) {
+      quote.usersUpVoted = new Array<User>();
+      quote.usersUpVoted.push(user);
+      quote.upVote = quote.upVote + 1;
+    } else {
+      if (quote.usersDownVoted === null) {
+        quote.usersDownVoted = new Array<User>();
+      }
+      quote.usersDownVoted.push(user);
+      quote.downVote = quote.downVote + 1;
+    }
+    await this.quotesRepository.save(quote);
+    return quote;
+  }
   async getAllQuotesByPublishDate() {
-    return await AppDataSource.getRepository(Quote).find({
-      relations: {
-        user: true,
-      },
+    return await this.quotesRepository.find({
+      relations: ['user'],
       order: {
         date: 'DESC',
       },
@@ -72,13 +82,10 @@ export class QuotesService {
   }
 
   async getRandomQuote() {
-    const value = await AppDataSource.getRepository(Quote).count({});
-    console.log(value + 'dddd');
+    const value = await this.quotesRepository.count({});
     const random = Math.floor(Math.random() * value);
-    return await AppDataSource.getRepository(Quote).find({
-      relations: {
-        user: true,
-      },
+    return await this.quotesRepository.find({
+      relations: ['user'],
       order: {
         upVote: 'DESC',
       },
