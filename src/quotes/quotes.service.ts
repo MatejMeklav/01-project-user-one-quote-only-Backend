@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import e from 'express';
 import { User } from 'src/users/user.entity';
 import { Repository } from 'typeorm';
 import { CreateUpdateQuoteDto } from './dto/create-update-quote-dto';
@@ -14,7 +15,7 @@ export class QuotesService {
   async findQuoteWithUser(user: User): Promise<Quote | undefined> {
     const data = await this.quotesRepository.findOne({
       where: { user: user },
-      relations: ['user'],
+      relations: ['user', 'usersUpVoted', 'usersDownVoted'],
     });
 
     return data;
@@ -23,6 +24,7 @@ export class QuotesService {
   async findQuoteWithId(id: string): Promise<Quote | undefined> {
     const data = await this.quotesRepository.findOne({
       where: { id: id },
+      relations: ['user', 'usersUpVoted', 'usersDownVoted'],
     });
 
     return data;
@@ -49,11 +51,25 @@ export class QuotesService {
 
   async getAllQuotes() {
     return await this.quotesRepository.find({
-      relations: ['user'],
       order: {
         upVote: 'DESC',
       },
+      relations: ['user', 'usersUpVoted', 'usersDownVoted'],
     });
+  }
+  async checkIfVoted(type: boolean, userr: User, quoteId: string) {
+    const quote = await this.findQuoteWithId(quoteId);
+    if (type) {
+      if (quote.usersUpVoted === null) {
+        return false;
+      }
+      return quote.usersUpVoted.find((user) => user.id === userr.id);
+    } else {
+      if (quote.usersDownVoted === null) {
+        return false;
+      }
+      return quote.usersDownVoted.find((user) => user.id === userr.id);
+    }
   }
 
   async quoteVote(type: boolean, user: User, quoteId: string) {
@@ -63,21 +79,17 @@ export class QuotesService {
       quote.usersUpVoted.push(user);
       quote.upVote = quote.upVote + 1;
     } else {
-      if (quote.usersDownVoted === null) {
-        quote.usersDownVoted = new Array<User>();
-      }
       quote.usersDownVoted.push(user);
       quote.downVote = quote.downVote + 1;
     }
-    await this.quotesRepository.save(quote);
-    return quote;
+    return this.quotesRepository.save(quote);
   }
   async getAllQuotesByPublishDate() {
     return await this.quotesRepository.find({
-      relations: ['user'],
       order: {
         date: 'DESC',
       },
+      relations: ['user', 'usersUpVoted', 'usersDownVoted'],
     });
   }
 
@@ -85,7 +97,7 @@ export class QuotesService {
     const value = await this.quotesRepository.count({});
     const random = Math.floor(Math.random() * value);
     return await this.quotesRepository.find({
-      relations: ['user'],
+      relations: ['user', 'usersUpVoted', 'usersDownVoted'],
       order: {
         upVote: 'DESC',
       },

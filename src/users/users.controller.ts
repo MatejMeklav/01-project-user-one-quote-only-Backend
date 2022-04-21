@@ -5,6 +5,7 @@ import {
   Put,
   UseGuards,
   Request,
+  Post,
 } from '@nestjs/common';
 import { QuotesService } from 'src/quotes/quotes.service';
 import { JwtAuthGuard } from './auth/jwt-auth.guard';
@@ -50,15 +51,40 @@ export class UsersController {
     };
   }
   @UseGuards(JwtAuthGuard)
-  @Put('/:id/upvote')
+  @Post('/:id/upvote')
   async upVoteQuote(@Request() req, @Param() params) {
+    console.log(req.user.id);
     const user = await this.usersService.findById(req.user.id);
+    const resUp = await this.quoteService.checkIfVoted(true, user, params.id);
+    const resDown = await this.quoteService.checkIfVoted(
+      false,
+      user,
+      params.id,
+    );
+    if (resUp) {
+      return { voted: true };
+    }
+    if (resDown) {
+      return { voted: true };
+    }
     return await this.quoteService.quoteVote(true, user, params.id);
   }
   @UseGuards(JwtAuthGuard)
   @Put('/:id/downvote')
   async downVoteQuote(@Request() req, @Param() params) {
     const user = await this.usersService.findById(req.user.id);
-    return await this.quoteService.quoteVote(false, user, params.id);
+    const resUp = await this.quoteService.checkIfVoted(true, user, params.id);
+    const resDown = await this.quoteService.checkIfVoted(
+      false,
+      user,
+      params.id,
+    );
+    if (resUp) {
+      return { voted: true };
+    } else if (resDown) {
+      return { voted: true };
+    } else {
+      return this.quoteService.quoteVote(false, user, params.id);
+    }
   }
 }
