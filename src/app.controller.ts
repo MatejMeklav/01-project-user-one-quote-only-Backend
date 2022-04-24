@@ -25,11 +25,13 @@ export class AppController {
     private usersService: UsersService,
     private quotesService: QuotesService,
   ) {}
+
   @UseGuards(LocalAuthGuard)
   @Post('login')
   async login(@Request() req) {
     const token = await Promise.resolve(this.authService.login(req.user));
     console.log(token + ' token');
+    console.log(process.env.DATABASE_PASSWORD);
     return { key: token };
   }
 

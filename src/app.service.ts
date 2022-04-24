@@ -5,7 +5,7 @@ import { Cache } from 'cache-manager';
 export class AppService {
   constructor(@Inject(CACHE_MANAGER) private cacheManager: Cache) {}
   getHello(): string {
-    return 'Hello World!';
+    return process.env.DATABASE_NAME;
   }
 
   async getAuthToken(key: string): Promise<string> {
